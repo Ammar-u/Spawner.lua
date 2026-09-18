@@ -1,6 +1,6 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v9.0 (MASTER FULL)
+              FRUIT SPAWNER SYSTEM v10.0 (FULLY FIXED)
     ==================================================
 ]]
 
