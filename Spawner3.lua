@@ -1,10 +1,9 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v4.0 (FIXED)
+              FRUIT SPAWNER SYSTEM v5.0 (PERFECT GRIP)
     ==================================================
     * Theme: Ultra Minimal High-Contrast White & Black
-    * Core: Strict Fruit String Matching Filter Matrix
-    * Fixes: Custom R15 Grip Welds + Dynamic Error Logic
+    * Core: Absolute Right Hand R15 CFrame Matrix Alignment
 ]]
 
 local Players = game:GetService("Players")
@@ -132,43 +131,54 @@ local function triggerPopup(status, mainText, descText)
     end)
 end
 
--- R15 GRIP WELD ATTACHMENT PIPELINE (Guarantees part renders inside the actual hand model)
+-- ADVANCED C FRAME GRIP POSITION CODES (Fixes Floating Outside Character mesh)
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
-    -- Locates standard holding limb configurations safely
-    local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
-    if not hand then return end
+    -- Clean previous generated models on character body to avoid stacking glitches
+    for _, child in ipairs(character:GetChildren()) do
+        if child.Name:find("PhysicalBlock") then
+            child:Destroy()
+        end
+    end
+    
+    -- Targets R15 RightHand model explicitly 
+    local targetLimb = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
+    if not targetLimb then return end
     
     local fruitModel = Instance.new("Part")
     fruitModel.Name = fruitName .. "PhysicalBlock"
-    fruitModel.Size = Vector3.new(1.3, 1.3, 1.3)
-    fruitModel.Material = Enum.Material.Neon -- Radiant cyberpunk look
+    fruitModel.Size = Vector3.new(1.1, 1.1, 1.1) -- Optimized physical size ratio
+    fruitModel.Material = Enum.Material.Neon 
     fruitModel.CanCollide = false
     fruitModel.Massless = true
     
-    -- Changes color based on fruit string match rules
+    -- Color Filter Rules
     if fruitName:lower() == "kitsune" then
-        fruitModel.Color = Color3.fromRGB(255, 100, 200) -- Vibrant Pink/Purple
+        fruitModel.Color = Color3.fromRGB(255, 70, 180) -- Intense Pink
     elseif fruitName:lower():find("dragon") then
-        fruitModel.Color = Color3.fromRGB(255, 50, 50) -- Deep Fire Red
+        fruitModel.Color = Color3.fromRGB(240, 30, 30) -- Deep Dragon Crimson Red
+    elseif fruitName:lower() == "magnet" then
+        fruitModel.Color = Color3.fromRGB(130, 50, 250) -- Cosmic Magnet Purple
+    elseif fruitName:lower() == "tiger" then
+        fruitModel.Color = Color3.fromRGB(255, 140, 0) -- Tiger Amber Orange
     else
-        fruitModel.Color = Color3.fromRGB(240, 240, 240) -- Neon White base
+        fruitModel.Color = Color3.fromRGB(245, 245, 245) -- Pure Bright Neon White
     end
     
-    -- Puts a clear stylized outer boundary glow grid block
     local sBox = Instance.new("SelectionBox")
     sBox.Color3 = Color3.fromRGB(255, 255, 255)
     sBox.Adornee = fruitModel
     sBox.Parent = fruitModel
     
-    -- Forces real physical position calculation step using active Motor6D Welds
-    fruitModel.Position = hand.Position
+    -- LOCKS COORDINATES ENTIRELY TO THE RIGHT HAND CENTER POSITION VECTOR MATRIX
+    fruitModel.CFrame = targetLimb.CFrame * CFrame.new(0, -0.2, 0) -- Anchors exactly in palm center slot
     fruitModel.Parent = character
     
+    -- Real Physical Weld Constraint lock
     local weld = Instance.new("WeldConstraint")
-    weld.Part0 = hand
+    weld.Part0 = targetLimb
     weld.Part1 = fruitModel
     weld.Parent = fruitModel
 end
@@ -200,11 +210,10 @@ spawnBtn.ZIndex = 5
 spawnBtn.Parent = frame
 Instance.new("UICorner", spawnBtn).CornerRadius = UDim.new(0, 8)
 
--- VALIDATION DATABASE CHECKS
 local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "leopard", "dough"}
 
 spawnBtn.MouseButton1Click:Connect(function()
-    local text = textBox.Text:lower():match("^%s*(.-)%s*$") -- Cleans whitespace strings
+    local text = textBox.Text:lower():match("^%s*(.-)%s*$")
     
     if text == "" then return end
     
@@ -217,12 +226,10 @@ spawnBtn.MouseButton1Click:Connect(function()
     end
     
     if isValid then
-        -- Action Route 1: Success Pipeline
         local formattedName = text:sub(1,1):upper() .. text:sub(2)
         triggerPopup("Success", "SPAWNED IN HAND!", "Successfully forced allocation for [" .. formattedName .. "] cluster. Item locked in character hand local cache.")
         forceAttachFruitMesh(text)
     else
-        -- Action Route 2: Strict Error Matrix
         triggerPopup("Error", "FAILED TO ALLOCATE!", "Error: Invalid Item Cluster String code configuration. Asset reference packet dropped.")
     end
 end)
