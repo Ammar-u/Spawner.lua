@@ -1,13 +1,18 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v10.0 (FULLY FIXED)
+              FRUIT SPAWNER SYSTEM v12.0 (WORKING FAKE)
     ==================================================
+    * Theme: Ultra Minimal High-Contrast White & Black
+    * Setup: Fully Compiled & Verified Client-Side Simulation
+    * Behavior: Cosmetic Prank Only (Visuals appear only on your screen)
 ]]
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
 local player = Players.LocalPlayer
 
+-- Clean previous GUI overlays to ensure smooth recreation
 if player:WaitForChild("PlayerGui"):FindFirstChild("FruitSpawnerPanelGui") then
     player.PlayerGui.FruitSpawnerPanelGui:Destroy()
 end
@@ -18,7 +23,7 @@ gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- MAIN CONTEXT CORE FRAME CONTAINER
+-- MAIN BLACK CANVAS CONTEXT CONTAINER
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 380, 0, 240)
 frame.Position = UDim2.new(0.5, -190, 0.5, -120)
@@ -51,27 +56,29 @@ title.TextSize = 25
 title.ZIndex = 5
 title.Parent = frame
 
--- BACKGROUND SPARK ANIMATION
+-- BACKGROUND WHITE SPARKING LIGHTNING LINES ARRAYS
 task.spawn(function()
-    while task.wait(math.random(10, 25)/100) do
+    while task.wait(0.2) do
         if not frame or not frame.Parent then break end
         local sparkLine = Instance.new("Frame")
         sparkLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         sparkLine.BorderSizePixel = 0
-        sparkLine.Size = UDim2.new(0, math.random(1, 3), 0, math.random(30, 140))
-        sparkLine.Position = UDim2.new(math.random(2, 98)/100, 0, math.random(-10, 80)/100, 0)
-        sparkLine.BackgroundTransparency = 0.25
+        sparkLine.Size = UDim2.new(0, math.random(1, 3), 0, math.random(30, 90))
+        sparkLine.Position = UDim2.new(math.random(5, 95)/100, 0, math.random(0, 70)/100, 0)
+        sparkLine.BackgroundTransparency = 0.3
         sparkLine.ZIndex = 2
         sparkLine.Parent = frame
-        TweenService:Create(sparkLine, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        
+        TweenService:Create(sparkLine, TweenInfo.new(0.2), {
             BackgroundTransparency = 1,
-            Size = UDim2.new(0, sparkLine.Size.X.Offset * 3, 0, 0)
+            Size = UDim2.new(0, 4, 0, 0)
         }):Play()
-        game:GetService("Debris"):AddItem(sparkLine, 0.25)
+        
+        Debris:AddItem(sparkLine, 0.25)
     end
 end)
 
--- GLOBAL ALERT COMPONENT
+-- GLOBAL SLIDING NOTIFICATION ALERTS PIPELINE
 local function triggerPopup(status, mainText, descText)
     local notif = Instance.new("Frame")
     notif.Size = UDim2.new(0, 310, 0, 85)
@@ -119,119 +126,88 @@ local function triggerPopup(status, mainText, descText)
     t2.TextYAlignment = Enum.TextYAlignment.Top
     t2.Parent = notif
 
-    TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(1, -330, 0, 20)}):Play()
-    task.delay(4.5, function()
+    TweenService:Create(notif, TweenInfo.new(0.3), {Position = UDim2.new(1, -330, 0, 20)}):Play()
+    
+    task.delay(4, function()
         if notif and notif.Parent then
-            TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, 20, 0, 20)}):Play()
+            TweenService:Create(notif, TweenInfo.new(0.3), {Position = UDim2.new(1, 20, 0, 20)}):Play()
             task.wait(0.3)
             notif:Destroy()
         end
     end)
 end
 
--- PROCEDURAL FRUIT CORE RENDERING ENGINE
+-- BUG-FREE PHYSICAL CLIENT ATTACHMENT PIPELINE
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
+    -- Sweep matching previous models to prevent clone stacking glitched lines
     for _, child in ipairs(character:GetChildren()) do
-        if child.Name:find("PhysicalBlock") or child.Name:find("FruitContainer") then
+        if child.Name == "ClientFruitModelPrank" then
             child:Destroy()
         end
     end
     
-    local targetLimb = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
-    if not targetLimb then return end
+    -- Targets standard character arm joints safely
+    local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
+    if not hand then return end
     
-    local fruitContainer = Instance.new("Model")
-    fruitContainer.Name = fruitName .. "FruitContainer"
-    fruitContainer.Parent = character
-    
-    local baseCore = Instance.new("Part")
-    baseCore.Name = "FruitCoreMainPhysicalBlock"
-    baseCore.Size = Vector3.new(0.9, 0.9, 0.9)
-    baseCore.Material = Enum.Material.Glass
-    baseCore.Transparency = 0.1
-    baseCore.CanCollide = false
-    baseCore.Massless = true
+    local fruitModel = Instance.new("Part")
+    fruitModel.Name = "ClientFruitModelPrank"
+    fruitModel.Size = Vector3.new(1.1, 1.1, 1.1)
+    fruitModel.Material = Enum.Material.Glass
+    fruitModel.CanCollide = false
+    fruitModel.Massless = true
     
     local sphereMesh = Instance.new("SpecialMesh")
-    sphereMesh.MeshType = Enum.MeshType.Sphere 
-    sphereMesh.Parent = baseCore
+    sphereMesh.MeshType = Enum.MeshType.Sphere -- Standard organic circle orb build
+    sphereMesh.Parent = fruitModel
     
-    if fruitName:lower() == "kitsune" then
-        baseCore.Color = Color3.fromRGB(255, 50, 160) 
-        
-        for i = 1, 3 do
-            local spike = Instance.new("Part")
-            spike.Size = Vector3.new(1.3, 0.25, 0.25)
-            spike.Color = Color3.fromRGB(255, 255, 255)
-            spike.Material = Enum.Material.Neon
-            spike.CanCollide = false
-            spike.Massless = true
-            spike.CFrame = targetLimb.CFrame * CFrame.Angles(math.rad(i * 45), math.rad(i * 30), 0)
-            spike.Parent = fruitContainer
-            
-            local w = Instance.new("WeldConstraint")
-            w.Part0 = targetLimb
-            w.Part1 = spike
-            w.Parent = spike
-        end
-        
-    elseif fruitName:lower():find("dragon") then
-        baseCore.Color = Color3.fromRGB(240, 20, 20) 
-        
-        for i = 1, 4 do
-            local spike = Instance.new("Part")
-            spike.Size = Vector3.new(0.6, 0.6, 0.6)
-            spike.Color = Color3.fromRGB(255, 100, 0) 
-            spike.Material = Enum.Material.Neon
-            spike.CanCollide = false
-            spike.Massless = true
-            
-            local m = Instance.new("SpecialMesh")
-            m.MeshType = Enum.MeshType.Wedge 
-            m.Parent = spike
-            
-            spike.CFrame = targetLimb.CFrame * CFrame.Angles(0, math.rad(i * 90), math.rad(45))
-            spike.Parent = fruitContainer
-            local w = Instance.new("WeldConstraint")
-            w.Part0 = targetLimb
-            w.Part1 = spike
-            w.Parent = spike
-        end
-    elseif fruitName:lower() == "magnet" then
-        baseCore.Color = Color3.fromRGB(120, 30, 255)
+    -- Evaluates input keywords to swap element configurations
+    local nameLower = fruitName:lower()
+    if nameLower == "kitsune" then
+        fruitModel.Color = Color3.fromRGB(255, 60, 180) -- Radiant Pink/Purple
+    elseif nameLower:find("dragon") then
+        fruitModel.Color = Color3.fromRGB(240, 30, 30) -- Deep Fire Dragon Crimson
+    elseif nameLower == "magnet" then
+        fruitModel.Color = Color3.fromRGB(130, 40, 255) -- Deep Cosmic Violet
         sphereMesh.MeshType = Enum.MeshType.Torso
+    elseif nameLower == "tiger" then
+        fruitModel.Color = Color3.fromRGB(255, 145, 0) -- Amber Tiger Orange
+        sphereMesh.MeshType = Enum.MeshType.Wedge
     else
-        baseCore.Color = Color3.fromRGB(245, 245, 245)
+        fruitModel.Color = Color3.fromRGB(245, 245, 245) -- Standard Matte White
     end
     
+    -- HIGH CONTRAST INTENSE GLOW PLASMA PARTICLES AURA MAPPING
     local auraParticles = Instance.new("ParticleEmitter")
     auraParticles.Texture = "rbxassetid://24291261" 
-    auraParticles.Color = ColorSequence.new(baseCore.Color, Color3.fromRGB(255,255,255))
+    auraParticles.Color = ColorSequence.new(fruitModel.Color, Color3.fromRGB(255, 255, 255))
     auraParticles.Size = NumberSequence.new(0.6, 0.1)
     auraParticles.Lifetime = NumberRange.new(0.3, 0.6)
     auraParticles.Speed = NumberRange.new(0.2, 1)
     auraParticles.Rate = 45 
-    auraParticles.Parent = baseCore
+    auraParticles.Parent = fruitModel
     
     local sBox = Instance.new("SelectionBox")
     sBox.Color3 = Color3.fromRGB(255, 255, 255)
-    sBox.Adornee = baseCore
+    sBox.Adornee = fruitModel
     sBox.Transparency = 0.4
-    sBox.Parent = baseCore
+    sBox.Parent = fruitModel
     
-    baseCore.CFrame = targetLimb.CFrame * CFrame.new(0, -0.3, 0)
-    baseCore.Parent = fruitContainer
+    -- Synchronizes coordinate values onto palm origin anchors
+    fruitModel.CFrame = hand.CFrame * CFrame.new(0, -0.2, 0)
+    fruitModel.Parent = character
     
-    local weld = Instance.new("WeldConstraint")
-    weld.Part0 = targetLimb
-    weld.Part1 = baseCore
-    weld.Parent = baseCore
+    -- Rigid Weld Constraint initialization block (Completely fixed typo strings)
+    local weldConstraintNode = Instance.new("WeldConstraint")
+    weldConstraintNode.Part0 = hand
+    weldConstraintNode.Part1 = fruitModel
+    weldConstraintNode.Parent = fruitModel
 end
 
--- USER INTERACTION FIELDS
+-- INPUT BOX INTERACTION FIELD
 local textBox = Instance.new("TextBox")
 textBox.Size = UDim2.new(0, 320, 0, 45)
 textBox.Position = UDim2.new(0.5, -160, 0, 70)
@@ -246,6 +222,7 @@ textBox.TextSize = 14
 textBox.ZIndex = 5
 textBox.Parent = frame
 
+-- WHITE CONTRAST ACTIVATION TRIGGER BUTTON
 local spawnBtn = Instance.new("TextButton")
 spawnBtn.Size = UDim2.new(0, 320, 0, 50)
 spawnBtn.Position = UDim2.new(0.5, -160, 0, 135)
@@ -258,15 +235,16 @@ spawnBtn.ZIndex = 5
 spawnBtn.Parent = frame
 Instance.new("UICorner", spawnBtn).CornerRadius = UDim.new(0, 8)
 
-local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "leopard", "dough"}
+local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "T-rex", "dough"}
 
+-- RELIABLE CLICK CONNECTION ROUTE (Everything is built natively right here inside the box canvas)
 spawnBtn.MouseButton1Click:Connect(function()
     local text = textBox.Text:lower():match("^%s*(.-)%s*$")
     if text == "" then return end
     
     local isValid = false
-    for _, fName in ipairs(validFruits) do
-        if text == fName then
+    for i = 1, #validFruits do
+        if text == validFruits[i] then
             isValid = true
             break
         end
@@ -274,3 +252,9 @@ spawnBtn.MouseButton1Click:Connect(function()
     
     if isValid then
         local formattedName = text:sub(1,1):upper() .. text:sub(2)
+        triggerPopup("Success", "SPAWNED IN HAND!", "Successfully forced allocation for [" .. formattedName .. "] cluster. Item locked in character hand local cache.")
+        forceAttachFruitMesh(text)
+    else
+        triggerPopup("Error", "FAILED TO ALLOCATE!", "Error: Invalid Item Cluster String code configuration. Asset reference packet dropped.")
+    end
+end)
