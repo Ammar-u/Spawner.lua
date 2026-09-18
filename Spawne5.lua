@@ -1,10 +1,10 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v6.0 (FINAL CHANNELS)
+              FRUIT SPAWNER SYSTEM v7.0 (FINAL FIX)
     ==================================================
     * Theme: Ultra Minimal High-Contrast White & Black
-    * Logic: Advanced SpecialMesh Formatting for Organic Shapes
-    * Target: Client-Side Simulation Only
+    * Logic: Procedural Geometry Compositing (Instant Loading)
+    * Features: Particle Plasma Aura Tracking Matrix
 ]]
 
 local Players = game:GetService("Players")
@@ -16,7 +16,7 @@ if player:WaitForChild("PlayerGui"):FindFirstChild("FruitSpawnerPanelGui") then
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "FruitSpawnerPanelGui"
+gui.Name = "FruitSpawnerPanel"
 gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
@@ -132,13 +132,14 @@ local function triggerPopup(status, mainText, descText)
     end)
 end
 
--- ADVANCED 3D MODEL GEOMETRY GENERATOR
+-- PROCEDURAL FRUIT CORE RENDERING ENGINE (Bypasses Roblox Asset Download Blocks)
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
+    -- Clean previous instances safely
     for _, child in ipairs(character:GetChildren()) do
-        if child.Name:find("PhysicalBlock") then
+        if child.Name:find("PhysicalBlock") or child.Name:find("FruitContainer") then
             child:Destroy()
         end
     end
@@ -146,64 +147,94 @@ local function forceAttachFruitMesh(fruitName)
     local targetLimb = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
     if not targetLimb then return end
     
-    local fruitModel = Instance.new("Part")
-    fruitModel.Name = fruitName .. "PhysicalBlock"
-    fruitModel.Size = Vector3.new(1.2, 1.2, 1.2)
-    fruitModel.Material = Enum.Material.Glass 
-    fruitModel.CanCollide = false
-    fruitModel.Massless = true
+    -- Main transparent folder structure inside player workspace layer
+    local fruitContainer = Instance.new("Model")
+    fruitContainer.Name = fruitName .. "FruitContainer"
+    fruitContainer.Parent = character
     
-    local customMesh = Instance.new("SpecialMesh")
-    customMesh.Parent = fruitModel
+    local baseCore = Instance.new("Part")
+    baseCore.Name = "FruitCoreMainPhysicalBlock"
+    baseCore.Size = Vector3.new(0.9, 0.9, 0.9)
+    baseCore.Material = Enum.Material.Glass
+    baseCore.Transparency = 0.1
+    baseCore.CanCollide = false
+    baseCore.Massless = true
     
-    -- Dynamic Custom Shape Logic Engine
+    local sphereMesh = Instance.new("SpecialMesh")
+    sphereMesh.MeshType = Enum.MeshType.Sphere -- Instant smooth round core shape loading
+    sphereMesh.Parent = baseCore
+    
+    -- Procedural Shape Definition Combinations
     if fruitName:lower() == "kitsune" then
-        fruitModel.Color = Color3.fromRGB(255, 75, 180) 
-        customMesh.MeshType = Enum.MeshType.FileMesh
-        customMesh.MeshId = "rbxassetid://98548981" 
-        customMesh.Scale = Vector3.new(1.4, 1.4, 1.4)
+        baseCore.Color = Color3.fromRGB(255, 50, 160) -- Neon Kitsune Purple Pink
+        
+        -- Generates a complex high-tech particle cross star layer around core
+        for i = 1, 3 do
+            local spike = Instance.new("Part")
+            spike.Size = Vector3.new(1.3, 0.25, 0.25)
+            spike.Color = Color3.fromRGB(255, 255, 255)
+            spike.Material = Enum.Material.Neon
+            spike.CanCollide = false
+            spike.Massless = true
+            spike.CFrame = targetLimb.CFrame * CFrame.Angles(math.rad(i * 45), math.rad(i * 30), 0)
+            spike.Parent = fruitContainer
+            
+            local w = Instance.new("WeldConstraint")
+            wled.Part0 = targetLimb; w.Part1 = spike; w.Parent = spike
+        end
+        
     elseif fruitName:lower():find("dragon") then
-        fruitModel.Color = Color3.fromRGB(240, 30, 30) 
-        customMesh.MeshType = Enum.MeshType.FileMesh
-        customMesh.MeshId = "rbxassetid://104618211"
-        customMesh.Scale = Vector3.new(1.3, 1.3, 1.3)
+        baseCore.Color = Color3.fromRGB(240, 20, 20) -- Deep Crimson Fire
+        
+        -- Creates stacked flame block vectors
+        for i = 1, 4 do
+            local spike = Instance.new("Part")
+            spike.Size = Vector3.new(0.6, 0.6, 0.6)
+            spike.Color = Color3.fromRGB(255, 100, 0) -- Fire Orange details
+            spike.Material = Enum.Material.Neon
+            spike.CanCollide = false
+            spike.Massless = true
+            
+            local m = Instance.new("SpecialMesh")
+            m.MeshType = Enum.MeshType.Wedge -- Sharp organic dragon scales/horns shape
+            m.Parent = spike
+            
+            spike.CFrame = targetLimb.CFrame * CFrame.new(0,0,0) * CFrame.Angles(0, math.rad(i * 90), math.rad(45))
+            spike.Parent = fruitContainer
+            local w = Instance.new("WeldConstraint")
+            w.Part0 = targetLimb; w.Part1 = spike; w.Parent = spike
+        end
     elseif fruitName:lower() == "magnet" then
-        fruitModel.Color = Color3.fromRGB(120, 40, 255) 
-        customMesh.MeshType = Enum.MeshType.Torso 
-        customMesh.Scale = Vector3.new(1.1, 1.1, 1.1)
-    elseif fruitName:lower() == "tiger" then
-        fruitModel.Color = Color3.fromRGB(255, 130, 0) 
-        customMesh.MeshType = Enum.MeshType.Wedge 
-        customMesh.Scale = Vector3.new(1.2, 1.2, 1.2)
+        baseCore.Color = Color3.fromRGB(120, 30, 255)
+        sphereMesh.MeshType = Enum.MeshType.Torso
     else
-        fruitModel.Color = Color3.fromRGB(245, 245, 245)
-        customMesh.MeshType = Enum.MeshType.Sphere 
-        customMesh.Scale = Vector3.new(1.2, 1.2, 1.2)
+        baseCore.Color = Color3.fromRGB(245, 245, 245)
     end
     
-    -- Glowing particles aura
+    -- HIGH CONTRAST GLOW PLASMA PARTICLES AURA
     local auraParticles = Instance.new("ParticleEmitter")
     auraParticles.Texture = "rbxassetid://24291261" 
-    auraParticles.Color = ColorSequence.new(fruitModel.Color)
-    auraParticles.Size = NumberSequence.new(0.6, 0)
-    auraParticles.Lifetime = NumberRange.new(0.4, 0.7)
-    auraParticles.Speed = NumberRange.new(0.5, 1.5)
-    auraParticles.Rate = 25
-    auraParticles.Parent = fruitModel
+    auraParticles.Color = ColorSequence.new(baseCore.Color, Color3.fromRGB(255,255,255))
+    auraParticles.Size = NumberSequence.new(0.6, 0.1)
+    auraParticles.Lifetime = NumberRange.new(0.3, 0.6)
+    auraParticles.Speed = NumberRange.new(0.2, 1)
+    auraParticles.Rate = 45 -- Intense flow rate looks magical and real
+    auraParticles.Parent = baseCore
     
+    -- Selection Box highlight border mapping
     local sBox = Instance.new("SelectionBox")
     sBox.Color3 = Color3.fromRGB(255, 255, 255)
-    sBox.Adornee = fruitModel
-    sBox.Transparency = 0.5
-    sBox.Parent = fruitModel
+    sBox.Adornee = baseCore
+    sBox.Transparency = 0.4
+    sBox.Parent = baseCore
     
-    fruitModel.CFrame = targetLimb.CFrame * CFrame.new(0, -0.3, 0)
-    fruitModel.Parent = character
+    baseCore.CFrame = targetLimb.CFrame * CFrame.new(0, -0.3, 0)
+    baseCore.Parent = fruitContainer
     
     local weld = Instance.new("WeldConstraint")
     weld.Part0 = targetLimb
-    weld.Part1 = fruitModel
-    weld.Parent = fruitModel
+    weld.Part1 = baseCore
+    weld.Parent = baseCore
 end
 
 -- USER INTERACTION FIELDS
@@ -227,33 +258,3 @@ spawnBtn.Position = UDim2.new(0.5, -160, 0, 135)
 spawnBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 spawnBtn.Text = "Spawn In Hand"
 spawnBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
-spawnBtn.Font = Enum.Font.GothamBold
-spawnBtn.TextSize = 16
-spawnBtn.ZIndex = 5
-spawnBtn.Parent = frame
-Instance.new("UICorner", spawnBtn).CornerRadius = UDim.new(0, 8)
-
-local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "leopard", "dough"}
-
--- MAIN CLICK CONNECTION BLOCK WITH ERROR VERIFICATION MAPPED INSIDE
-spawnBtn.MouseButton1Click:Connect(function()
-    local text = textBox.Text:lower():match("^%s*(.-)%s*$")
-    
-    if text == "" then return end
-    
-    local isValid = false
-    for _, fName in ipairs(validFruits) do
-        if text == fName then
-            isValid = true
-            break
-        end
-    end
-    
-    if isValid then
-        local formattedName = text:sub(1,1):upper() .. text:sub(2)
-        triggerPopup("Success", "SPAWNED IN HAND!", "Successfully forced allocation for [" .. formattedName .. "] cluster. Item locked in character hand local cache.")
-        forceAttachFruitMesh(text)
-    else
-        triggerPopup("Error", "FAILED TO ALLOCATE!", "Error: Invalid Item Cluster String code configuration. Asset reference packet dropped.")
-    end
-end)
