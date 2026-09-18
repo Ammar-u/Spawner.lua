@@ -1,14 +1,14 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v15.0 (REDZ CORE)
+              FRUIT SPAWNER SYSTEM v16.0 (REDZ METHOD)
     ==================================================
+    * Logic: ReplicatedStorage Cache Deep Asset Injection
     * Theme: Ultra Minimal High-Contrast White & Black
-    * Logic: Real Blox Fruits Asset ID Stream Injection (REDZ Hub Method)
 ]]
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local Debris = game:GetService("Debris")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
 if player:WaitForChild("PlayerGui"):FindFirstChild("FruitSpawnerPanelGui") then
@@ -70,7 +70,7 @@ task.spawn(function()
             BackgroundTransparency = 1,
             Size = UDim2.new(0, 4, 0, 0)
         }):Play()
-        Debris:AddItem(sparkLine, 0.25)
+        game:GetService("Debris"):AddItem(sparkLine, 0.25)
     end
 end)
 
@@ -132,82 +132,87 @@ local function triggerPopup(status, mainText, descText)
     end)
 end
 
--- REAL ROBLOX FRUIT MESH ATTACHMENT PIPELINE
+-- ADVANCED DIRECT ENGINE INJECTION PIPELINE (REDZ HUB SYSTEM DEPLOY)
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
-    -- Sweep matching previous models to prevent duplicate bugs
     for _, child in ipairs(character:GetChildren()) do
-        if child.Name == "ClientFruitModelPrank" then
+        if child.Name == "ClientFruitModelPrank" or child:IsA("Tool") and child.Name:find("Fruit") then
             child:Destroy()
         end
     end
     
     local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
-    if not hand then return end
+    local backpack = player:FindFirstChild("Backpack")
+    if not hand or not backpack then return end
     
-    local fruitModel = Instance.new("Part")
-    fruitModel.Name = "ClientFruitModelPrank"
-    fruitModel.Size = Vector3.new(1.2, 1.2, 1.2)
-    fruitModel.Material = Enum.Material.Neon -- Maximum bright glow texturing
-    fruitModel.CanCollide = false
-    fruitModel.Massless = true
-    
-    -- Real Roblox Fruit Engine Mesh ID Database Mapping
-    local specialMeshNode = Instance.new("SpecialMesh")
-    specialMeshNode.MeshType = Enum.MeshType.FileMesh
-    specialMeshNode.Parent = fruitModel
-    
+    local targetModel = nil
     local nameLower = fruitName:lower()
-    if nameLower == "kitsune" then
-        fruitModel.Color = Color3.fromRGB(255, 60, 180)
-        -- Verified Roblox Game Asset Id for Multi-Spiked Exotic Orb Shape
-        specialMeshNode.MeshId = "rbxassetid://13501726051" 
-        specialMeshNode.Scale = Vector3.new(1.5, 1.5, 1.5)
-    elseif nameLower:find("dragon") then
-        fruitModel.Color = Color3.fromRGB(240, 30, 30)
-        -- Verified Dragon Scale Wing Star Shard Mesh
-        specialMeshNode.MeshId = "rbxassetid://13501729015"
-        specialMeshNode.Scale = Vector3.new(1.4, 1.4, 1.4)
-    elseif nameLower == "magnet" then
-        fruitModel.Color = Color3.fromRGB(120, 30, 255)
-        specialMeshNode.MeshId = "rbxassetid://14785469612"
-        specialMeshNode.Scale = Vector3.new(1.3, 1.3, 1.3)
-    elseif nameLower == "tiger" then
-        fruitModel.Color = Color3.fromRGB(255, 140, 0)
-        specialMeshNode.MeshId = "rbxassetid://14785461105"
-        specialMeshNode.Scale = Vector3.new(1.4, 1.4, 1.4)
-    else
-        -- Fallback Clean Smooth Orb Core Shape if text is mixed up
-        fruitModel.Color = Color3.fromRGB(245, 245, 245)
-        specialMeshNode.MeshType = Enum.MeshType.Sphere
-        specialMeshNode.Scale = Vector3.new(1.2, 1.2, 1.2)
+    
+    -- SEARCH STEP: Attempts to crawl game memory storage to find original fruit meshes
+    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+        if obj:IsA("Model") and obj.Name:lower():find(nameLower) and obj.Name:lower():find("fruit") then
+            targetModel = obj
+            break
+        end
     end
-
-    -- HIGH CONTRAST GLOW PARTICLES
-    local auraParticles = Instance.new("ParticleEmitter")
-    auraParticles.Texture = "rbxassetid://24291261" 
-    auraParticles.Color = ColorSequence.new(fruitModel.Color, Color3.fromRGB(255, 255, 255))
-    auraParticles.Size = NumberSequence.new(0.6, 0.1)
-    auraParticles.Lifetime = NumberRange.new(0.3, 0.6)
-    auraParticles.Speed = NumberRange.new(0.2, 1)
-    auraParticles.Rate = 45 
-    auraParticles.Parent = fruitModel
     
-    local sBox = Instance.new("SelectionBox")
-    sBox.Color3 = Color3.fromRGB(255, 255, 255)
-    sBox.Adornee = fruitModel
-    sBox.Transparency = 0.5
-    sBox.Parent = fruitModel
+    local tool = Instance.new("Tool")
+    tool.Name = fruitName:sub(1,1):upper() .. fruitName:sub(2) .. " Fruit"
+    tool.RequiresHandle = true
     
-    fruitModel.CFrame = hand.CFrame * CFrame.new(0, -0.2, 0)
-    fruitModel.Parent = character
+    local handle = nil
     
-    local weldConstraintNode = Instance.new("WeldConstraint")
-    weldConstraintNode.Part0 = hand
-    weldConstraintNode.Part1 = fruitModel
-    weldConstraintNode.Parent = fruitModel
+    -- FALLBACK PIPELINE: If original mesh is blocked, deploys intense plasma weapon matrix
+    if targetModel then
+        local clone = targetModel:Clone()
+        clone.Name = "Handle"
+        if clone:IsA("Model") then
+            handle = clone:FindFirstChildWhichIsA("BasePart") or Instance.new("Part")
+            for _, p in ipairs(clone:GetChildren()) do
+                if p:IsA("BasePart") and p ~= handle then
+                    local w = Instance.new("WeldConstraint")
+                    w.Part0 = handle; w.Part1 = p; w.Parent = p
+                    p.Parent = tool
+                    p.CanCollide = false
+                end
+            end
+        else
+            handle = clone
+        end
+    else
+        handle = Instance.new("Part")
+        handle.Size = Vector3.new(1, 1, 1)
+        handle.Material = Enum.Material.ForceField
+        
+        local m = Instance.new("SpecialMesh")
+        m.MeshType = Enum.MeshType.Sphere
+        m.Parent = handle
+    end
+    
+    handle.Name = "Handle"
+    handle.CanCollide = false
+    handle.Massless = true
+    handle.Parent = tool
+    
+    -- REDZ-STYLE GLOWING SMOKE EMITTER CHANNELS
+    local colorMap = {kitsune = Color3.fromRGB(255,60,180), dragon = Color3.fromRGB(240,20,20), magnet = Color3.fromRGB(120,30,255), tiger = Color3.fromRGB(255,140,0)}
+    local elementColor = colorMap[nameLower] or Color3.fromRGB(255,255,255)
+    handle.Color = elementColor
+    
+    local aura = Instance.new("ParticleEmitter")
+    aura.Texture = "rbxassetid://24291261"
+    aura.Color = ColorSequence.new(elementColor, Color3.fromRGB(255,255,255))
+    aura.Size = NumberSequence.new(0.7, 0.1)
+    aura.Lifetime = NumberRange.new(0.4, 0.7)
+    aura.Rate = 50
+    aura.Parent = handle
+    
+    local sb = Instance.new("SelectionBox")
+    sb.Color3 = Color3.fromRGB(255,255,255); sb.Adornee = handle; sb.Parent = handle
+    
+    tool.Parent = backpack -- Places straight into backpack hotbar natively
 end
 
 -- USER INTERACTION FIELDS
@@ -253,7 +258,7 @@ spawnBtn.MouseButton1Click:Connect(function()
     
     if isValid then
         local formattedName = text:sub(1,1):upper() .. text:sub(2)
-        triggerPopup("Success", "SPAWNED IN HAND!", "Successfully forced allocation for [" .. formattedName .. "] cluster. Item locked in character hand local cache.")
+        triggerPopup("Success", "SPAWNED IN HOTBAR!", "Successfully injected [" .. formattedName .. "] module data. Check your item hotbar belt slot.")
         forceAttachFruitMesh(text)
     else
         triggerPopup("Error", "FAILED TO ALLOCATE!", "Error: Invalid Item Cluster String code configuration. Asset reference packet dropped.")
