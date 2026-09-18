@@ -1,10 +1,7 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v7.0 (FINAL FIX)
+              FRUIT SPAWNER SYSTEM v9.0 (MASTER FULL)
     ==================================================
-    * Theme: Ultra Minimal High-Contrast White & Black
-    * Logic: Procedural Geometry Compositing (Instant Loading)
-    * Features: Particle Plasma Aura Tracking Matrix
 ]]
 
 local Players = game:GetService("Players")
@@ -21,7 +18,7 @@ gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- MAIN CONTEXT FRAME
+-- MAIN CONTEXT CORE FRAME CONTAINER
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 380, 0, 240)
 frame.Position = UDim2.new(0.5, -190, 0.5, -120)
@@ -132,12 +129,11 @@ local function triggerPopup(status, mainText, descText)
     end)
 end
 
--- PROCEDURAL FRUIT CORE RENDERING ENGINE (Bypasses Roblox Asset Download Blocks)
+-- PROCEDURAL FRUIT CORE RENDERING ENGINE
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
-    -- Clean previous instances safely
     for _, child in ipairs(character:GetChildren()) do
         if child.Name:find("PhysicalBlock") or child.Name:find("FruitContainer") then
             child:Destroy()
@@ -147,7 +143,6 @@ local function forceAttachFruitMesh(fruitName)
     local targetLimb = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
     if not targetLimb then return end
     
-    -- Main transparent folder structure inside player workspace layer
     local fruitContainer = Instance.new("Model")
     fruitContainer.Name = fruitName .. "FruitContainer"
     fruitContainer.Parent = character
@@ -161,14 +156,12 @@ local function forceAttachFruitMesh(fruitName)
     baseCore.Massless = true
     
     local sphereMesh = Instance.new("SpecialMesh")
-    sphereMesh.MeshType = Enum.MeshType.Sphere -- Instant smooth round core shape loading
+    sphereMesh.MeshType = Enum.MeshType.Sphere 
     sphereMesh.Parent = baseCore
     
-    -- Procedural Shape Definition Combinations
     if fruitName:lower() == "kitsune" then
-        baseCore.Color = Color3.fromRGB(255, 50, 160) -- Neon Kitsune Purple Pink
+        baseCore.Color = Color3.fromRGB(255, 50, 160) 
         
-        -- Generates a complex high-tech particle cross star layer around core
         for i = 1, 3 do
             local spike = Instance.new("Part")
             spike.Size = Vector3.new(1.3, 0.25, 0.25)
@@ -180,29 +173,32 @@ local function forceAttachFruitMesh(fruitName)
             spike.Parent = fruitContainer
             
             local w = Instance.new("WeldConstraint")
-            wled.Part0 = targetLimb; w.Part1 = spike; w.Parent = spike
+            w.Part0 = targetLimb
+            w.Part1 = spike
+            w.Parent = spike
         end
         
     elseif fruitName:lower():find("dragon") then
-        baseCore.Color = Color3.fromRGB(240, 20, 20) -- Deep Crimson Fire
+        baseCore.Color = Color3.fromRGB(240, 20, 20) 
         
-        -- Creates stacked flame block vectors
         for i = 1, 4 do
             local spike = Instance.new("Part")
             spike.Size = Vector3.new(0.6, 0.6, 0.6)
-            spike.Color = Color3.fromRGB(255, 100, 0) -- Fire Orange details
+            spike.Color = Color3.fromRGB(255, 100, 0) 
             spike.Material = Enum.Material.Neon
             spike.CanCollide = false
             spike.Massless = true
             
             local m = Instance.new("SpecialMesh")
-            m.MeshType = Enum.MeshType.Wedge -- Sharp organic dragon scales/horns shape
+            m.MeshType = Enum.MeshType.Wedge 
             m.Parent = spike
             
-            spike.CFrame = targetLimb.CFrame * CFrame.new(0,0,0) * CFrame.Angles(0, math.rad(i * 90), math.rad(45))
+            spike.CFrame = targetLimb.CFrame * CFrame.Angles(0, math.rad(i * 90), math.rad(45))
             spike.Parent = fruitContainer
             local w = Instance.new("WeldConstraint")
-            w.Part0 = targetLimb; w.Part1 = spike; w.Parent = spike
+            w.Part0 = targetLimb
+            w.Part1 = spike
+            w.Parent = spike
         end
     elseif fruitName:lower() == "magnet" then
         baseCore.Color = Color3.fromRGB(120, 30, 255)
@@ -211,17 +207,15 @@ local function forceAttachFruitMesh(fruitName)
         baseCore.Color = Color3.fromRGB(245, 245, 245)
     end
     
-    -- HIGH CONTRAST GLOW PLASMA PARTICLES AURA
     local auraParticles = Instance.new("ParticleEmitter")
     auraParticles.Texture = "rbxassetid://24291261" 
     auraParticles.Color = ColorSequence.new(baseCore.Color, Color3.fromRGB(255,255,255))
     auraParticles.Size = NumberSequence.new(0.6, 0.1)
     auraParticles.Lifetime = NumberRange.new(0.3, 0.6)
     auraParticles.Speed = NumberRange.new(0.2, 1)
-    auraParticles.Rate = 45 -- Intense flow rate looks magical and real
+    auraParticles.Rate = 45 
     auraParticles.Parent = baseCore
     
-    -- Selection Box highlight border mapping
     local sBox = Instance.new("SelectionBox")
     sBox.Color3 = Color3.fromRGB(255, 255, 255)
     sBox.Adornee = baseCore
@@ -258,3 +252,25 @@ spawnBtn.Position = UDim2.new(0.5, -160, 0, 135)
 spawnBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 spawnBtn.Text = "Spawn In Hand"
 spawnBtn.TextColor3 = Color3.fromRGB(10, 10, 10)
+spawnBtn.Font = Enum.Font.GothamBold
+spawnBtn.TextSize = 16
+spawnBtn.ZIndex = 5
+spawnBtn.Parent = frame
+Instance.new("UICorner", spawnBtn).CornerRadius = UDim.new(0, 8)
+
+local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "leopard", "dough"}
+
+spawnBtn.MouseButton1Click:Connect(function()
+    local text = textBox.Text:lower():match("^%s*(.-)%s*$")
+    if text == "" then return end
+    
+    local isValid = false
+    for _, fName in ipairs(validFruits) do
+        if text == fName then
+            isValid = true
+            break
+        end
+    end
+    
+    if isValid then
+        local formattedName = text:sub(1,1):upper() .. text:sub(2)
