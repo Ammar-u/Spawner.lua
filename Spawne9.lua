@@ -1,10 +1,9 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v12.0 (WORKING FAKE)
+              FRUIT SPAWNER SYSTEM v13.0 (GLOW CORE)
     ==================================================
-    * Theme: Ultra Minimal High-Contrast White & Black
-    * Setup: Fully Compiled & Verified Client-Side Simulation
-    * Behavior: Cosmetic Prank Only (Visuals appear only on your screen)
+    * Setup: Procedural Neon Energy Core Shader
+    * Effect: High-Intensity Aura Rings + Spark Beams
 ]]
 
 local Players = game:GetService("Players")
@@ -12,7 +11,6 @@ local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local player = Players.LocalPlayer
 
--- Clean previous GUI overlays to ensure smooth recreation
 if player:WaitForChild("PlayerGui"):FindFirstChild("FruitSpawnerPanelGui") then
     player.PlayerGui.FruitSpawnerPanelGui:Destroy()
 end
@@ -23,7 +21,7 @@ gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- MAIN BLACK CANVAS CONTEXT CONTAINER
+-- MAIN BLACK PANEL CONTAINER
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 380, 0, 240)
 frame.Position = UDim2.new(0.5, -190, 0.5, -120)
@@ -56,7 +54,7 @@ title.TextSize = 25
 title.ZIndex = 5
 title.Parent = frame
 
--- BACKGROUND WHITE SPARKING LIGHTNING LINES ARRAYS
+-- BACKGROUND WHITE SPARK LINES
 task.spawn(function()
     while task.wait(0.2) do
         if not frame or not frame.Parent then break end
@@ -68,17 +66,15 @@ task.spawn(function()
         sparkLine.BackgroundTransparency = 0.3
         sparkLine.ZIndex = 2
         sparkLine.Parent = frame
-        
         TweenService:Create(sparkLine, TweenInfo.new(0.2), {
             BackgroundTransparency = 1,
             Size = UDim2.new(0, 4, 0, 0)
         }):Play()
-        
         Debris:AddItem(sparkLine, 0.25)
     end
 end)
 
--- GLOBAL SLIDING NOTIFICATION ALERTS PIPELINE
+-- GLOBAL ALERT POPUP
 local function triggerPopup(status, mainText, descText)
     local notif = Instance.new("Frame")
     notif.Size = UDim2.new(0, 310, 0, 85)
@@ -127,7 +123,6 @@ local function triggerPopup(status, mainText, descText)
     t2.Parent = notif
 
     TweenService:Create(notif, TweenInfo.new(0.3), {Position = UDim2.new(1, -330, 0, 20)}):Play()
-    
     task.delay(4, function()
         if notif and notif.Parent then
             TweenService:Create(notif, TweenInfo.new(0.3), {Position = UDim2.new(1, 20, 0, 20)}):Play()
@@ -137,77 +132,90 @@ local function triggerPopup(status, mainText, descText)
     end)
 end
 
--- BUG-FREE PHYSICAL CLIENT ATTACHMENT PIPELINE
+-- HIGH-TECH MAGICAL CORE ADVANCED DECORATOR ENGINE
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
-    -- Sweep matching previous models to prevent clone stacking glitched lines
     for _, child in ipairs(character:GetChildren()) do
         if child.Name == "ClientFruitModelPrank" then
             child:Destroy()
         end
     end
     
-    -- Targets standard character arm joints safely
     local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
     if not hand then return end
     
+    -- MAIN CORE PIECE
     local fruitModel = Instance.new("Part")
     fruitModel.Name = "ClientFruitModelPrank"
     fruitModel.Size = Vector3.new(1.1, 1.1, 1.1)
-    fruitModel.Material = Enum.Material.Glass
+    fruitModel.Material = Enum.Material.ForceField -- Special shiny forcefield shader
     fruitModel.CanCollide = false
     fruitModel.Massless = true
     
-    local sphereMesh = Instance.new("SpecialMesh")
-    sphereMesh.MeshType = Enum.MeshType.Sphere -- Standard organic circle orb build
-    sphereMesh.Parent = fruitModel
-    
-    -- Evaluates input keywords to swap element configurations
+    -- Dynamic Custom Glowing Color Channels
     local nameLower = fruitName:lower()
-    if nameLower == "kitsune" then
-        fruitModel.Color = Color3.fromRGB(255, 60, 180) -- Radiant Pink/Purple
-    elseif nameLower:find("dragon") then
-        fruitModel.Color = Color3.fromRGB(240, 30, 30) -- Deep Fire Dragon Crimson
-    elseif nameLower == "magnet" then
-        fruitModel.Color = Color3.fromRGB(130, 40, 255) -- Deep Cosmic Violet
-        sphereMesh.MeshType = Enum.MeshType.Torso
-    elseif nameLower == "tiger" then
-        fruitModel.Color = Color3.fromRGB(255, 145, 0) -- Amber Tiger Orange
-        sphereMesh.MeshType = Enum.MeshType.Wedge
-    else
-        fruitModel.Color = Color3.fromRGB(245, 245, 245) -- Standard Matte White
-    end
+    local coreColor = Color3.fromRGB(255, 255, 255)
     
-    -- HIGH CONTRAST INTENSE GLOW PLASMA PARTICLES AURA MAPPING
+    if nameLower == "kitsune" then
+        coreColor = Color3.fromRGB(255, 60, 180) -- Neon Magic Pink
+    elseif nameLower:find("dragon") then
+        coreColor = Color3.fromRGB(240, 30, 30) -- Flame Crimson
+    elseif nameLower == "magnet" then
+        coreColor = Color3.fromRGB(130, 40, 255) -- Deep Cosmic Purple
+    elseif nameLower == "tiger" then
+        coreColor = Color3.fromRGB(255, 145, 0) -- Amber Tiger Orange
+    end
+    fruitModel.Color = coreColor
+
+    -- INNER BRIGHT ORB ENGINE (Spawned inside the box to give depth)
+    local innerOrb = Instance.new("Part")
+    innerOrb.Name = "InnerOrbEffect"
+    innerOrb.Size = Vector3.new(0.7, 0.7, 0.7)
+    innerOrb.Material = Enum.Material.Neon -- Maximum bright glowing neon glow
+    innerOrb.Color = coreColor
+    innerOrb.CanCollide = false
+    innerOrb.Massless = true
+    innerOrb.Parent = fruitModel
+    
+    local sphereMesh = Instance.new("SpecialMesh")
+    sphereMesh.MeshType = Enum.MeshType.Sphere -- Forces a bright ball shape inside the box
+    sphereMesh.Parent = innerOrb
+
+    -- CONNECT INNER ORB TO THE BOX COORDINATES
+    local innerWeld = Instance.new("WeldConstraint")
+    innerWeld.Part0 = fruitModel
+    innerWeld.Part1 = innerOrb
+    innerWeld.Parent = innerOrb
+
+    -- INTENSE PARTICLE AURA TRAILS (Emits magic smoke around the hand)
     local auraParticles = Instance.new("ParticleEmitter")
     auraParticles.Texture = "rbxassetid://24291261" 
-    auraParticles.Color = ColorSequence.new(fruitModel.Color, Color3.fromRGB(255, 255, 255))
-    auraParticles.Size = NumberSequence.new(0.6, 0.1)
-    auraParticles.Lifetime = NumberRange.new(0.3, 0.6)
-    auraParticles.Speed = NumberRange.new(0.2, 1)
-    auraParticles.Rate = 45 
+    auraParticles.Color = ColorSequence.new(coreColor, Color3.fromRGB(255, 255, 255))
+    auraParticles.Size = NumberSequence.new(0.8, 0.2)
+    auraParticles.Lifetime = NumberRange.new(0.4, 0.8)
+    auraParticles.Speed = NumberRange.new(0.5, 2)
+    auraParticles.Rate = 60 -- Tons of magical smoke beams!
     auraParticles.Parent = fruitModel
     
+    -- Outer Glowing Selection Box
     local sBox = Instance.new("SelectionBox")
     sBox.Color3 = Color3.fromRGB(255, 255, 255)
     sBox.Adornee = fruitModel
-    sBox.Transparency = 0.4
+    sBox.Transparency = 0.3
     sBox.Parent = fruitModel
     
-    -- Synchronizes coordinate values onto palm origin anchors
     fruitModel.CFrame = hand.CFrame * CFrame.new(0, -0.2, 0)
     fruitModel.Parent = character
     
-    -- Rigid Weld Constraint initialization block (Completely fixed typo strings)
     local weldConstraintNode = Instance.new("WeldConstraint")
     weldConstraintNode.Part0 = hand
     weldConstraintNode.Part1 = fruitModel
     weldConstraintNode.Parent = fruitModel
 end
 
--- INPUT BOX INTERACTION FIELD
+-- USER INTERACTION FIELDS
 local textBox = Instance.new("TextBox")
 textBox.Size = UDim2.new(0, 320, 0, 45)
 textBox.Position = UDim2.new(0.5, -160, 0, 70)
@@ -222,7 +230,6 @@ textBox.TextSize = 14
 textBox.ZIndex = 5
 textBox.Parent = frame
 
--- WHITE CONTRAST ACTIVATION TRIGGER BUTTON
 local spawnBtn = Instance.new("TextButton")
 spawnBtn.Size = UDim2.new(0, 320, 0, 50)
 spawnBtn.Position = UDim2.new(0.5, -160, 0, 135)
@@ -235,9 +242,8 @@ spawnBtn.ZIndex = 5
 spawnBtn.Parent = frame
 Instance.new("UICorner", spawnBtn).CornerRadius = UDim.new(0, 8)
 
-local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "T-rex", "dough"}
+local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "leopard", "dough"}
 
--- RELIABLE CLICK CONNECTION ROUTE (Everything is built natively right here inside the box canvas)
 spawnBtn.MouseButton1Click:Connect(function()
     local text = textBox.Text:lower():match("^%s*(.-)%s*$")
     if text == "" then return end
