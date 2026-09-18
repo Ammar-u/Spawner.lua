@@ -1,9 +1,10 @@
 --[[
     ==================================================
-              FRUIT SPAWNER SYSTEM v5.0 (PERFECT GRIP)
+              FRUIT SPAWNER SYSTEM v6.0 (FINAL CHANNELS)
     ==================================================
     * Theme: Ultra Minimal High-Contrast White & Black
-    * Core: Absolute Right Hand R15 CFrame Matrix Alignment
+    * Logic: Advanced SpecialMesh Formatting for Organic Shapes
+    * Target: Client-Side Simulation Only
 ]]
 
 local Players = game:GetService("Players")
@@ -15,7 +16,7 @@ if player:WaitForChild("PlayerGui"):FindFirstChild("FruitSpawnerPanelGui") then
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "FruitSpawnerPanel"
+gui.Name = "FruitSpawnerPanelGui"
 gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
@@ -131,52 +132,74 @@ local function triggerPopup(status, mainText, descText)
     end)
 end
 
--- ADVANCED C FRAME GRIP POSITION CODES (Fixes Floating Outside Character mesh)
+-- ADVANCED 3D MODEL GEOMETRY GENERATOR
 local function forceAttachFruitMesh(fruitName)
     local character = player.Character
     if not character then return end
     
-    -- Clean previous generated models on character body to avoid stacking glitches
     for _, child in ipairs(character:GetChildren()) do
         if child.Name:find("PhysicalBlock") then
             child:Destroy()
         end
     end
     
-    -- Targets R15 RightHand model explicitly 
     local targetLimb = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
     if not targetLimb then return end
     
     local fruitModel = Instance.new("Part")
     fruitModel.Name = fruitName .. "PhysicalBlock"
-    fruitModel.Size = Vector3.new(1.1, 1.1, 1.1) -- Optimized physical size ratio
-    fruitModel.Material = Enum.Material.Neon 
+    fruitModel.Size = Vector3.new(1.2, 1.2, 1.2)
+    fruitModel.Material = Enum.Material.Glass 
     fruitModel.CanCollide = false
     fruitModel.Massless = true
     
-    -- Color Filter Rules
+    local customMesh = Instance.new("SpecialMesh")
+    customMesh.Parent = fruitModel
+    
+    -- Dynamic Custom Shape Logic Engine
     if fruitName:lower() == "kitsune" then
-        fruitModel.Color = Color3.fromRGB(255, 70, 180) -- Intense Pink
+        fruitModel.Color = Color3.fromRGB(255, 75, 180) 
+        customMesh.MeshType = Enum.MeshType.FileMesh
+        customMesh.MeshId = "rbxassetid://98548981" 
+        customMesh.Scale = Vector3.new(1.4, 1.4, 1.4)
     elseif fruitName:lower():find("dragon") then
-        fruitModel.Color = Color3.fromRGB(240, 30, 30) -- Deep Dragon Crimson Red
+        fruitModel.Color = Color3.fromRGB(240, 30, 30) 
+        customMesh.MeshType = Enum.MeshType.FileMesh
+        customMesh.MeshId = "rbxassetid://104618211"
+        customMesh.Scale = Vector3.new(1.3, 1.3, 1.3)
     elseif fruitName:lower() == "magnet" then
-        fruitModel.Color = Color3.fromRGB(130, 50, 250) -- Cosmic Magnet Purple
+        fruitModel.Color = Color3.fromRGB(120, 40, 255) 
+        customMesh.MeshType = Enum.MeshType.Torso 
+        customMesh.Scale = Vector3.new(1.1, 1.1, 1.1)
     elseif fruitName:lower() == "tiger" then
-        fruitModel.Color = Color3.fromRGB(255, 140, 0) -- Tiger Amber Orange
+        fruitModel.Color = Color3.fromRGB(255, 130, 0) 
+        customMesh.MeshType = Enum.MeshType.Wedge 
+        customMesh.Scale = Vector3.new(1.2, 1.2, 1.2)
     else
-        fruitModel.Color = Color3.fromRGB(245, 245, 245) -- Pure Bright Neon White
+        fruitModel.Color = Color3.fromRGB(245, 245, 245)
+        customMesh.MeshType = Enum.MeshType.Sphere 
+        customMesh.Scale = Vector3.new(1.2, 1.2, 1.2)
     end
+    
+    -- Glowing particles aura
+    local auraParticles = Instance.new("ParticleEmitter")
+    auraParticles.Texture = "rbxassetid://24291261" 
+    auraParticles.Color = ColorSequence.new(fruitModel.Color)
+    auraParticles.Size = NumberSequence.new(0.6, 0)
+    auraParticles.Lifetime = NumberRange.new(0.4, 0.7)
+    auraParticles.Speed = NumberRange.new(0.5, 1.5)
+    auraParticles.Rate = 25
+    auraParticles.Parent = fruitModel
     
     local sBox = Instance.new("SelectionBox")
     sBox.Color3 = Color3.fromRGB(255, 255, 255)
     sBox.Adornee = fruitModel
+    sBox.Transparency = 0.5
     sBox.Parent = fruitModel
     
-    -- LOCKS COORDINATES ENTIRELY TO THE RIGHT HAND CENTER POSITION VECTOR MATRIX
-    fruitModel.CFrame = targetLimb.CFrame * CFrame.new(0, -0.2, 0) -- Anchors exactly in palm center slot
+    fruitModel.CFrame = targetLimb.CFrame * CFrame.new(0, -0.3, 0)
     fruitModel.Parent = character
     
-    -- Real Physical Weld Constraint lock
     local weld = Instance.new("WeldConstraint")
     weld.Part0 = targetLimb
     weld.Part1 = fruitModel
@@ -212,6 +235,7 @@ Instance.new("UICorner", spawnBtn).CornerRadius = UDim.new(0, 8)
 
 local validFruits = {"kitsune", "dragon", "dragon (east)", "dragon (west)", "magnet", "tiger", "leopard", "dough"}
 
+-- MAIN CLICK CONNECTION BLOCK WITH ERROR VERIFICATION MAPPED INSIDE
 spawnBtn.MouseButton1Click:Connect(function()
     local text = textBox.Text:lower():match("^%s*(.-)%s*$")
     
